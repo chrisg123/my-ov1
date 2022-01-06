@@ -1,0 +1,47 @@
+--- a/src/virt-viewer-display-spice.c
++++ b/src/virt-viewer-display-spice.c
+@@ -163,16 +163,16 @@ update_display_ready(VirtViewerDisplaySpice *self)
+                                       VIRT_VIEWER_DISPLAY_SHOW_HINT_READY, ready);
+ }
+ 
+-static void
+-virt_viewer_display_spice_keyboard_grab(SpiceDisplay *display G_GNUC_UNUSED,
+-                                        int grabbed,
+-                                        VirtViewerDisplaySpice *self)
+-{
+-    if (grabbed)
+-        g_signal_emit_by_name(self, "display-keyboard-grab");
+-    else
+-        g_signal_emit_by_name(self, "display-keyboard-ungrab");
+-}
++/* static void */
++/* virt_viewer_display_spice_keyboard_grab(SpiceDisplay *display G_GNUC_UNUSED, */
++/*                                         int grabbed, */
++/*                                         VirtViewerDisplaySpice *self) */
++/* { */
++/*     if (grabbed) */
++/*         g_signal_emit_by_name(self, "display-keyboard-grab"); */
++/*     else */
++/*         g_signal_emit_by_name(self, "display-keyboard-ungrab"); */
++/* } */
+ 
+ 
+ static void
+@@ -322,14 +322,14 @@ virt_viewer_display_spice_new(VirtViewerSessionSpice *session,
+     gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(self->display));
+     gtk_widget_show(GTK_WIDGET(self->display));
+     g_object_set(self->display,
+-                 "grab-keyboard", TRUE,
++                 "grab-keyboard", FALSE,
+                  "grab-mouse", TRUE,
+                  "resize-guest", FALSE,
+                  "scaling", TRUE,
+                  NULL);
+ 
+-    virt_viewer_signal_connect_object(self->display, "keyboard-grab",
+-                                      G_CALLBACK(virt_viewer_display_spice_keyboard_grab), self, 0);
++    /* virt_viewer_signal_connect_object(self->display, "keyboard-grab", */
++    /*                                   G_CALLBACK(virt_viewer_display_spice_keyboard_grab), self, 0); */
+     virt_viewer_signal_connect_object(self->display, "mouse-grab",
+                                       G_CALLBACK(virt_viewer_display_spice_mouse_grab), self, 0);
+     virt_viewer_signal_connect_object(self, "size-allocate",

@@ -1,15 +1,15 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # TO DO:
 # * dependencies of unknown status:
-#       dev-perl/Device-SerialPort
-#       dev-perl/MIME-Lite
-#       dev-perl/MIME-tools
-#       dev-perl/PHP-Serialization
-#       virtual/perl-Archive-Tar
-#       virtual/perl-libnet
-#       virtual/perl-Module-Load
+#	dev-perl/Device-SerialPort
+# 	dev-perl/MIME-Lite
+# 	dev-perl/MIME-tools
+# 	dev-perl/PHP-Serialization
+# 	virtual/perl-Archive-Tar
+# 	virtual/perl-libnet
+# 	virtual/perl-Module-Load
 
 EAPI=6
 
@@ -17,13 +17,13 @@ inherit versionator perl-functions readme.gentoo-r1 cmake-utils depend.apache fl
 
 MY_PN="ZoneMinder"
 
-MY_CRUD_VERSION="3.1.0"
+MY_CRUD_VERSION="3.1.0-zm"
 
 DESCRIPTION="Capture, analyse, record and monitor any cameras attached to your system"
 HOMEPAGE="http://www.zoneminder.com/"
 SRC_URI="
-		https://github.com/${MY_PN}/${MY_PN}/archive/${PV}.tar.gz -> ${P}.tar.gz
-		https://github.com/FriendsOfCake/crud/archive/v${MY_CRUD_VERSION}.tar.gz -> Crud-${MY_CRUD_VERSION}.tar.gz
+	https://github.com/${MY_PN}/${MY_PN}/archive/${PV}.tar.gz -> ${P}.tar.gz
+	https://github.com/${MY_PN}/crud/archive/${MY_CRUD_VERSION}.tar.gz -> Crud-${MY_CRUD_VERSION}.tar.gz
 "
 
 LICENSE="GPL-2"
@@ -32,49 +32,50 @@ IUSE="curl encode ffmpeg gcrypt gnutls +mmap +ssl libressl vlc"
 SLOT="0"
 
 REQUIRED_USE="
-		|| ( ssl gnutls )
+	|| ( ssl gnutls )
 "
 
 DEPEND="
-		app-eselect/eselect-php[apache2]
-		dev-lang/perl:=
-		dev-lang/php:*[apache2,cgi,curl,gd,inifile,pdo,mysql,mysqli,sockets]
-		dev-libs/libpcre
-		dev-perl/Archive-Zip
-		dev-perl/Class-Std-Fast
-		dev-perl/Data-Dump
-		dev-perl/Date-Manip
-		dev-perl/Data-UUID
-		dev-perl/DBD-mysql
-		dev-perl/DBI
-		dev-perl/IO-Socket-Multicast
-		dev-perl/SOAP-WSDL
-		dev-perl/Sys-CPU
-		dev-perl/Sys-MemInfo
-		dev-perl/URI-Encode
-		dev-perl/libwww-perl
-		dev-php/pecl-apcu:*
-		sys-auth/polkit
-		sys-libs/zlib
-		ffmpeg? ( virtual/ffmpeg )
-		encode? ( media-libs/libmp4v2 )
-		virtual/httpd-php:*
-		virtual/jpeg:0
-		virtual/mysql
-		virtual/perl-ExtUtils-MakeMaker
-		virtual/perl-Getopt-Long
-		virtual/perl-Sys-Syslog
-		virtual/perl-Time-HiRes
-		www-servers/apache
-		curl? ( net-misc/curl )
-		gcrypt? ( dev-libs/libgcrypt:0= )
-		gnutls? ( net-libs/gnutls )
-		mmap? ( dev-perl/Sys-Mmap )
-		ssl? (
-				!libressl? ( dev-libs/openssl:0= )
-				libressl? ( dev-libs/libressl:0= )
-		)
-		vlc? ( media-video/vlc[live] )
+	app-eselect/eselect-php[apache2]
+	dev-lang/perl:=
+	dev-lang/php:7.4[apache2,cgi,curl,gd,inifile,pdo,mysql,mysqli,sockets]
+	dev-libs/libpcre
+	dev-perl/Archive-Zip
+	dev-perl/Class-Std-Fast
+	dev-perl/Data-Dump
+	dev-perl/Date-Manip
+	dev-perl/Data-UUID
+	dev-perl/DBD-mysql
+	dev-perl/DBI
+	dev-perl/IO-Socket-Multicast
+	dev-perl/SOAP-WSDL
+	dev-perl/Sys-CPU
+	dev-perl/Sys-MemInfo
+	dev-perl/URI-Encode
+	dev-perl/libwww-perl
+	dev-perl/Number-Bytes-Human
+	dev-php/pecl-apcu:*
+	sys-auth/polkit
+	sys-libs/zlib
+	ffmpeg? ( virtual/ffmpeg )
+	encode? ( media-libs/libmp4v2 )
+	virtual/httpd-php:*
+	virtual/jpeg:0
+	virtual/mysql
+	virtual/perl-ExtUtils-MakeMaker
+	virtual/perl-Getopt-Long
+	virtual/perl-Sys-Syslog
+	virtual/perl-Time-HiRes
+	www-servers/apache
+	curl? ( net-misc/curl )
+	gcrypt? ( dev-libs/libgcrypt:0= )
+	gnutls? ( net-libs/gnutls )
+	mmap? ( dev-perl/Sys-Mmap )
+	ssl? (
+		!libressl? ( dev-libs/openssl:0= )
+		libressl? ( dev-libs/libressl:0= )
+	)
+	vlc? ( media-video/vlc[live] )
 "
 RDEPEND="${DEPEND}"
 
@@ -103,6 +104,7 @@ src_configure() {
 		-DZM_PERL_SUBPREFIX=${VENDOR_LIB#/usr}
 		-DZM_TMPDIR=/var/tmp/zm
 		-DZM_SOCKDIR=/var/run/zm
+		-DZM_CACHEDIR=/var/cache/zoneminder
 		-DZM_WEB_USER=apache
 		-DZM_WEB_GROUP=apache
 		-DZM_WEBDIR=${MY_ZM_WEBDIR}
@@ -161,7 +163,11 @@ src_install() {
 	cp "${FILESDIR}"/10_zoneminder.conf "${T}"/10_zoneminder.conf || die
 	sed -i "${T}"/10_zoneminder.conf -e "s:%ZM_WEBDIR%:${MY_ZM_WEBDIR}:g" || die
 
-	dodoc AUTHORS BUGS ChangeLog INSTALL NEWS README.md TODO "${T}"/10_zoneminder.conf
+	if [[ ${PV} == 9999 ]]; then
+		dodoc README.md "${T}"/10_zoneminder.conf
+	else
+		dodoc CHANGELOG.md CONTRIBUTING.md README.md "${T}"/10_zoneminder.conf
+	fi
 
 	perl_delete_packlist
 

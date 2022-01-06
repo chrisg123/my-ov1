@@ -1,0 +1,13 @@
+--- a/src/virt-viewer-app.c
++++ b/src/virt-viewer-app.c
+@@ -2435,8 +2435,8 @@ static const struct VirtViewerActionAccels action_accels[] = {
+     { "win.zoom-out", { "<Ctrl>minus", "<Ctrl>KP_Subtract", NULL } },
+     { "win.zoom-reset", { "<Ctrl>0", "<Ctrl>KP_0", NULL } },
+     { "win.release-cursor", {"<Shift>F12", NULL, NULL} },
+-    { "app.smartcard-insert", {"<Shift>F8", NULL, NULL} },
+-    { "app.smartcard-remove", {"<Shift>F9", NULL, NULL} },
++    /* { "app.smartcard-insert", {"<Shift>F8", NULL, NULL} }, */
++    /* { "app.smartcard-remove", {"<Shift>F9", NULL, NULL} }, */
+     { "win.secure-attention", {"<Ctrl><Alt>End", NULL, NULL} },
+     { "win.usb-device-reset", {"<Ctrl><Shift>r", NULL, NULL} },
+ };

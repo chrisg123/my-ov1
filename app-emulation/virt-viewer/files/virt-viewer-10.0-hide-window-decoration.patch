@@ -1,0 +1,117 @@
+--- a/src/virt-viewer-app.c
++++ b/src/virt-viewer-app.c
+@@ -2430,6 +2430,7 @@ struct VirtViewerActionAccels {
+ 
+ static const struct VirtViewerActionAccels action_accels[] = {
+     { "win.fullscreen", {"F11", NULL, NULL} },
++    { "win.decoration", {"F6", NULL, NULL} },
+     { "win.zoom-in", { "<Ctrl>plus", "<Ctrl>KP_Add", NULL } },
+     { "win.zoom-out", { "<Ctrl>minus", "<Ctrl>KP_Subtract", NULL } },
+     { "win.zoom-reset", { "<Ctrl>0", "<Ctrl>KP_0", NULL } },
+--- a/src/virt-viewer-window.c
++++ b/src/virt-viewer-window.c
+@@ -61,6 +61,8 @@ static void virt_viewer_window_get_minimal_dimensions(VirtViewerWindow *self, gu
+ static gint virt_viewer_window_get_minimal_zoom_level(VirtViewerWindow *self);
+ static void virt_viewer_window_set_fullscreen(VirtViewerWindow *self,
+                                               gboolean fullscreen);
++static void virt_viewer_window_set_decoration(VirtViewerWindow *self,
++                                              gboolean decoration);
+ 
+ enum {
+     PROP_0,
+@@ -376,6 +378,21 @@ virt_viewer_window_action_fullscreen(GSimpleAction *act,
+     virt_viewer_window_set_fullscreen(self, fullscreen);
+ }
+ 
++static void
++virt_viewer_window_action_decoration(GSimpleAction *act,
++                                     GVariant *state,
++                                     gpointer opaque)
++{
++    g_return_if_fail(VIRT_VIEWER_IS_WINDOW(opaque));
++
++    VirtViewerWindow *self = VIRT_VIEWER_WINDOW(opaque);
++    gboolean decoration = g_variant_get_boolean(state);
++
++    g_simple_action_set_state(act, g_variant_new_boolean(decoration));
++
++    virt_viewer_window_set_decoration(self, decoration);
++}
++
+ static void
+ virt_viewer_window_action_send_key(GSimpleAction *act G_GNUC_UNUSED,
+                                    GVariant *param,
+@@ -499,6 +516,9 @@ static GActionEntry actions[] = {
+     { .name = "fullscreen",
+       .state = "false",
+       .change_state = virt_viewer_window_action_fullscreen },
++    { .name = "decoration",
++      .state = "true",
++      .change_state = virt_viewer_window_action_decoration },
+     { .name = "send-key",
+       .parameter_type = "au",
+       .activate = virt_viewer_window_action_send_key },
+@@ -759,6 +779,34 @@ virt_viewer_window_enter_fullscreen(VirtViewerWindow *self, gint monitor)
+     }
+ }
+ 
++void
++virt_viewer_window_show_decoration(VirtViewerWindow *self)
++{
++    if (self->fullscreen)
++        return;
++
++    GtkWindow* window = GTK_WINDOW(self->window);
++
++    if (gtk_window_get_decorated(window))
++        return;
++
++    gtk_window_set_decorated(window, TRUE);
++}
++
++void
++virt_viewer_window_hide_decoration(VirtViewerWindow *self)
++{
++    if (self->fullscreen)
++        return;
++
++    GtkWindow* window = GTK_WINDOW(self->window);
++
++    if (!gtk_window_get_decorated(window))
++        return;
++
++    gtk_window_set_decorated(GTK_WINDOW(self->window), FALSE);
++}
++
+ #define MAX_KEY_COMBO 4
+ struct keyComboDef {
+     guint32 keys[MAX_KEY_COMBO];
+@@ -998,6 +1046,17 @@ virt_viewer_window_set_fullscreen(VirtViewerWindow *self,
+     }
+ }
+ 
++static void
++virt_viewer_window_set_decoration(VirtViewerWindow *self,
++                                  gboolean decoration)
++{
++    if (decoration) {
++        virt_viewer_window_show_decoration(self);
++    } else {
++        virt_viewer_window_hide_decoration(self);
++    }
++}
++
+ 
+ static void add_if_writable (GdkPixbufFormat *data, GHashTable *formats)
+ {
+--- a/src/virt-viewer-window.h
++++ b/src/virt-viewer-window.h
+@@ -59,6 +59,8 @@ void virt_viewer_window_zoom_reset(VirtViewerWindow *self);
+ gint virt_viewer_window_get_zoom_level(VirtViewerWindow *self);
+ void virt_viewer_window_leave_fullscreen(VirtViewerWindow *self);
+ void virt_viewer_window_enter_fullscreen(VirtViewerWindow *self, gint monitor);
++void virt_viewer_window_show_decoration(VirtViewerWindow *self);
++void virt_viewer_window_hide_decoration(VirtViewerWindow *self);
+ GMenuModel *virt_viewer_window_get_menu_displays(VirtViewerWindow *self);
+ GtkBuilder* virt_viewer_window_get_builder(VirtViewerWindow *window);
+ void virt_viewer_window_set_kiosk(VirtViewerWindow *self, gboolean enabled);
